@@ -469,3 +469,352 @@ onCollision(response, other) {
 
   // Make the object solid
   return true;
+
+	
+	// game font
+{ name: "PressStart2P", type:"image", src: "data/fnt/PressStart2P.png" },
+{ name: "PressStart2P", type:"binary", src: "data/fnt/PressStart2P.fnt"},
+	
+	
+	
+	import * as me from 'melonjs/dist/melonjs.module.js';
+import ScoreItem from "./score-item.js";
+
+
+export default class HUDContainer extends me.Container {
+    constructor() {
+        super();
+
+        // persistent across level change
+        this.isPersistent = true;
+
+        // make sure we use screen coordinates
+        this.floating = true;
+
+        // give a name
+        this.name = "HUD";
+
+        // add our child score object at the top left corner
+        this.addChild(new ScoreItem(5, 5));
+    }
+}
+
+import * as me from 'melonjs/dist/melonjs.module.js';
+import data from './../../data.js'
+
+
+export default class ScoreItem extends me.Renderable {
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    constructor(x, y) {
+        super(x, y, 10, 10);
+
+
+        // create the font object
+        this.font = new me.BitmapText(0, 0, {font: "PressStart2P"});
+
+        // font alignment to right, bottom
+        this.font.textAlign = "right";
+        this.font.textBaseline = "bottom";
+
+        // local copy of the global score
+        this.score = -1;
+    }
+
+    /**
+     *
+     * @returns {boolean}
+     */
+    update() {
+        // we don't do anything fancy here, so just
+        // return true if the score has been updated
+        if (this.score !== data.score) {
+            this.score = data.score;
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * draw the score
+     */
+    draw(renderer) {
+        this.font.draw (renderer, data.score, me.game.viewport.width + this.pos.x, me.game.viewport.height + this.pos.y);
+    }
+}
+
+
+
+/**
+ * Code to draw the score to the HUD
+ */
+
+export class ScoreItem extends me.Renderable {
+	/**
+	 *
+	 * @param x
+	 * @param y
+	 */
+	constructor(x, y) {
+		super(x, y, 10, 10);
+
+
+		// create the font object
+		this.font = new me.BitmapText(0, 0, {font: "PressStart2P"});
+
+		// font alignment to right, bottom
+		this.font.textAlign = "right";
+		this.font.textBaseline = "bottom";
+
+		// local copy of the global score
+		this.score = -1;
+	}
+
+	/**
+	 *
+	 * @returns {boolean}
+	 */
+	update() {
+		// we don't do anything fancy here, so just
+		// return true if the score has been updated
+		if (this.score !== data.score) {
+			this.score = data.score;
+			return true;
+		}
+		return false;
+	}
+
+
+	/**
+	 * draw the score
+	 */
+	draw(renderer) {
+		this.font.draw (renderer, data.score, me.game.viewport.width + this.pos.x, me.game.viewport.height + this.pos.y);
+	}
+}
+HUD.ScoreItem = ScoreItem;
+	
+	
+	
+	export default class PlayScreen extends me.Stage {
+
+	/**
+	 *  action to perform on state change
+	 */
+	onResetEvent() {
+
+		// load a level
+		me.level.load("area01");
+
+		// reset the score
+		data.score = 0;
+
+		// add our HUD to the game world
+		this.HUD = new HUD.Container();
+		me.game.world.addChild(this.HUD);
+
+	}
+
+
+	/**
+	 *  action to perform when leaving this screen (state change)
+	 */
+	onDestroyEvent() {
+		// remove the HUD from the game world
+		me.game.world.removeChild(this.HUD);
+	}
+}
+
+	
+	onCollision() {
+  // do something when collected
+
+  // give some score
+  data.score += 250;
+
+  // make sure it cannot be collected "again"
+  this.body.setCollisionMask(me.collision.types.NO_OBJECT);
+
+  // remove it
+  me.game.world.removeChild(this);
+}
+	
+	
+	// initialize the "audio"
+me.audio.init("mp3,ogg");
+	
+	
+	
+	onCollision() {
+  // do something when collected
+
+  // play a "coin collected" sound
+  me.audio.play("cling");
+
+  // give some score
+  game.data.score += 250;
+
+  // make sure it cannot be collected "again"
+  this.body.setCollisionMask(me.collision.types.NO_OBJECT);
+
+  // remove it
+  me.game.world.removeChild(this);
+}
+	
+	
+	
+	if (me.input.isKeyPressed('jump')) {
+  if (!this.body.jumping && !this.body.falling) {
+    // set current vel to the maximum defined value
+    // gravity will then do the rest
+    this.body.vel.y = -this.body.maxVel.y;
+
+    // play some audio
+    me.audio.play("jump");
+  }
+}
+	
+	
+	
+	/**
+ * collision handler
+ */
+onCollision(response, other) {
+
+      // ...
+
+      case me.collision.types.ENEMY_OBJECT:
+        if ((response.overlapV.y>0) && this.body.falling) {
+          // bounce (force jump)
+          this.body.vel.y = -this.body.maxVel.y;
+
+          // play some audio
+          me.audio.play("stomp");
+        }
+        else {
+          // let's flicker in case we touched an enemy
+          this.renderable.flicker(750);
+        }
+
+        // Fall through
+
+      default:
+        // Do not respond to other objects (e.g. coins)
+        return false;
+    }
+
+  // Make the object solid
+  return true;
+}
+
+
+onResetEvent() {
+  // play the audio track
+  me.audio.playTrack("dst-inertexponent");
+
+  // ...
+},
+	
+	
+	onDestroyEvent() {
+
+  // ...
+
+  // stop the current audio track
+  me.audio.stopTrack();
+}
+
+
+/**
+ * A title screen
+ */
+export default class TitleScreen extends me.Stage {
+  // reset function
+  onResetEvent() {
+    // ...
+  },
+
+  // destroy function
+  onDestroyEvent() {
+    // ...
+  }
+};
+
+
+
+export default class TitleScreen extends me.Stage {
+
+	onResetEvent() {
+
+		// new sprite for the title screen, position at the center of the game viewport
+		var backgroundImage = new me.Sprite(me.game.viewport.width / 2, me.game.viewport.height / 2, {
+				image: me.loader.getImage('title_screen'),
+			}
+		);
+
+		// scale to fit with the viewport size
+		backgroundImage.scale(me.game.viewport.width / backgroundImage.width, me.game.viewport.height / backgroundImage.height);
+
+		// add to the world container
+		me.game.world.addChild(backgroundImage, 1);
+
+		me.game.world.addChild(new TitleText());
+
+		// change to play state on press Enter or click/tap
+		me.input.bindKey(me.input.KEY.ENTER, "enter", true);
+		me.input.bindPointer(me.input.pointer.LEFT, me.input.KEY.ENTER);
+
+		this.handler = me.event.on(me.event.KEYDOWN, function (action, keyCode, edge) {
+			if (action === "enter") {
+				// play something on tap / enter
+				// this will unlock audio on mobile devices
+				me.audio.play("cling");
+				me.state.change(me.state.PLAY);
+			}
+		});
+	}
+
+	/**
+	 * action to perform when leaving this screen (state change)
+	 */
+	onDestroyEvent() {
+		me.input.unbindKey(me.input.KEY.ENTER);
+		me.input.unbindPointer(me.input.pointer.LEFT);
+		me.event.off(me.event.KEYDOWN, this.handler);
+	}
+}
+
+/*
+ * callback when everything is loaded
+ */
+loaded() {
+  // set the "Play/Ingame" Screen Object
+  me.state.set(me.state.MENU, new game.TitleScreen());
+
+  // set the "Play/Ingame" Screen Object
+  me.state.set(me.state.PLAY, new game.PlayScreen());
+
+  // set a global fading transition for the screen
+  me.state.transition("fade", "#FFFFFF", 250);
+
+  // register our player entity in the object pool
+  me.pool.register("mainPlayer", Entities.PlayerEntity);
+  me.pool.register("CoinEntity", Entities.CoinEntity);
+  me.pool.register("EnemyEntity", Entities.EnemyEntity);
+
+  // enable the keyboard
+  me.input.bindKey(me.input.KEY.LEFT, "left");
+  me.input.bindKey(me.input.KEY.RIGHT, "right");
+  me.input.bindKey(me.input.KEY.X, "jump", true);
+
+  // display the menu title
+  me.state.change(me.state.MENU);
+}
+
+
+	
